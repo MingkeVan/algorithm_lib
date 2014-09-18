@@ -1,17 +1,19 @@
 #include <stdio.h>
-#define TOP 1000
-#define ll long long
-struct Node{
-    Node *child[2], *fa;  
+#include <string.h>
+#include "def.h"
+struct hNode{
+    hNode *child[2], *fa;  
     ll val;
     char* msg;
-    Node(ll v=0){
-        val = v; child[0] = child[1] = fa = msg = NULL;
+	void* rbNode;
+    hNode(ll v=0){
+        val = v; rbNode = child[0] = child[1] = fa = NULL;
     }
 };
-void swap(Node* fa, Node* ch){
+void swap(hNode* fa, hNode* ch){
+//	printf("swap %lld %lld\n", fa->val, ch->val);
 	if(fa->child[0] == ch){
-		Node* tmpc = fa->child[1], *tmpf = fa->fa;
+		hNode* tmpc = fa->child[1], *tmpf = fa->fa;
 		fa->child[0] = ch->child[0]; if(fa->child[0]) fa->child[0]->fa = fa;
 		fa->child[1] = ch->child[1]; if(fa->child[1]) fa->child[1]->fa = fa;
 		ch->child[0] = fa; fa->fa = ch;
@@ -21,7 +23,7 @@ void swap(Node* fa, Node* ch){
 		else tmpf->child[1] = ch;
 	}
 	else if(fa->child[1] == ch){
-		Node* tmpc = fa->child[0], *tmpf = fa->fa;
+		hNode* tmpc = fa->child[0], *tmpf = fa->fa;
 		fa->child[1] = ch->child[1]; if(ch->child[1]) ch->child[1]->fa = fa;
 		fa->child[0] = ch->child[0]; if(ch->child[0]) ch->child[0]->fa = fa;
 		ch->child[1] = fa; fa->fa = ch;
@@ -31,7 +33,7 @@ void swap(Node* fa, Node* ch){
 		else tmpf->child[0] = ch;
 	}
 	else{
-		Node* tmp = fa->fa;
+		hNode* tmp = fa->fa;
 		if(tmp->child[0] == fa) tmp->child[0] = ch;
 		if(tmp->child[1] == fa) tmp->child[1] = ch;
 		
@@ -49,10 +51,10 @@ void swap(Node* fa, Node* ch){
 	}
 }
 struct Heap{
-    Node* root;  
+    hNode* root;  
     int size;
-    Heap(){ size = 0; root = new Node();}
-    void down(Node *ptr){
+    Heap(){ size = 0; root = new hNode();}
+    void down(hNode *ptr){
         while(ptr){
             ll v = ptr->val;
             if(ptr->child[0] && ptr->child[1]){
@@ -69,6 +71,7 @@ struct Heap{
                     }
                     else return;
                 }
+				continue;
             }
             if(ptr->child[0]){
                 ll x = ptr->child[0]->val;
@@ -80,22 +83,22 @@ struct Heap{
             return;
         }
     }
-    void upon(Node *ptr){
+    void upon(hNode *ptr){
         while(ptr->fa != root){
-            Node* fa = ptr->fa;
+            hNode* fa = ptr->fa;
             if(fa->val > ptr->val){
                 swap(fa, ptr);
             }
             else return;
         }
     }
-    Node* bfs(Node *rt, int id){
-        Node* queue[TOP];
+    hNode* bfs(hNode *rt, int id){
+        hNode* queue[TOP];
         int head = 0, tail = 0;
         if(tail == id) return rt;
         queue[tail++] = rt;
         while(head < tail){
-            Node* top = queue[head]; head++;
+            hNode* top = queue[head]; head++;
             if(id == -1){
                 printf("%lld\n", top->val);
             }
@@ -110,30 +113,36 @@ struct Heap{
         }
         return NULL;
     }
-    Node* insert(int x){
+    hNode* insert(int x, char* msg){
+		unsigned int len = strlen(msg);
         if(size >= TOP){
             if(root->child[0]->val < x){
                 root->child[0]->val = x; // Mark
+				memcpy(root->child[0]->msg, msg, len+1);
                 down(root->child[0]);
                 return root->child[0];
             }
             return NULL;
         }
-        Node* newptr = new Node(x); size++;
+        hNode* newptr = new hNode(x); size++;
+		newptr->msg = (char*)malloc(STRMAX);
+		memcpy(newptr->msg, msg, len+1);
         if(size == 1){
             newptr->fa = root; root->child[0] = newptr; return newptr;
         }
-        Node* fa = bfs(root->child[0], size/2-1); 
+        hNode* fa = bfs(root->child[0], size/2-1); 
         newptr->fa = fa;
         fa->child[size&1] = newptr;
         upon(newptr);
         return newptr;
     }
 	void sort(){
+		int count = 0;
 		while(size){
-			printf("TOP %lld\n", root->child[0]->val);
-			Node* last = bfs(root->child[0], size-1);
-			Node* top = root->child[0];
+			count++;
+			printf("[TOP %d] %lld %s\n", TOP-count+1, root->child[0]->val, root->child[0]->msg);
+			hNode* last = bfs(root->child[0], size-1);
+			hNode* top = root->child[0];
 			swap(top, last);
 			if(top->fa->child[0] == top) top->fa->child[0] = NULL;
 			else top->fa->child[1] = NULL;

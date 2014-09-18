@@ -1,36 +1,65 @@
-#include "heap_list.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-char ip[15];
-char url[1024];
-char refer[1024];
-char agent[1024];
+#include "heap_list.h"
+#include "rbtree.h"
+#include "def.h"
+#include "hash.h"
+char ip[STRMAX];
+char refer[STRMAX];
+char agent[STRMAX];
+char code[STRMAX];
+char url[STRMAX];
+
 //int status;
-int code;
 int body;
+Heap urlMinHeap;
+RBRoot* urlRoot;
+
+void init(){
+	urlMinHeap = Heap();
+	urlRoot = create_rbtree();
+}
 
 int main(){
-	FILE* fp=fopen("test.in", "r");
-	while(fscanf(fp, "%[0-9|.] %*[^]]%*c %*s %s %*s %d %d \"%[^\"]%*c \"%[^\"]%*c%*c%*c", ip, url, &code, &body, refer, agent) == 6){
-		puts(ip);
-		puts(url);
-		puts(refer);
-		puts(agent);
-        printf("%d\n%d\n", code, body);
-//		printf("%d\n", len);
+	init();
+  	FILE* fp=fopen("big.in", "r");
+	int count = 0;
+	while(fscanf(fp, "%[0-9|.] %*[^]]%*c %*s %s %*s %s %d \"%[^\"]%*c \"%[^\"]%*c%*c%*c", ip, url, code, &body, refer, agent) == 6){
+		count++;
+//	while(fscanf(fp, "%s %d", url, &body)==2){
+//		printf("%d\n", body);
+		ull key1 = hashval(url, 0);
+		ull key2 = hashval(url, 1);
+//		printf("%llu %llu\n", key1, key2);
+		Node* ptr = iterative_search(urlRoot->node, key1, key2);
+		if(ptr == NULL){
+			ptr = create_rbtree_node(key1, key2, NULL, NULL, NULL, NULL);
+			rbtree_insert(urlRoot, ptr);
+		}
+		ptr->val += (ull)body;
+		if(ptr->hNode == NULL){
+			ptr->hNode = urlMinHeap.insert(ptr->val, url);
+			if(ptr->hNode) {
+				if(((hNode*)ptr->hNode)->rbNode){
+					((Node*)((hNode*)ptr->hNode)->rbNode)->hNode=NULL;
+				}
+				((hNode*)ptr->hNode)->rbNode = ptr;
+			}
+		}
+		else{
+			((hNode*)ptr->hNode)->val = ptr->val; urlMinHeap.down((hNode*)ptr->hNode);
+		}
 	}
+	printf("totel %d\n", count);
+	urlMinHeap.sort();
 //    Heap minheap = Heap();
-//    minheap.insert(3);
-//    minheap.display();
-//    minheap.insert(4);
-//    minheap.display();
-//    minheap.insert(5);
-//    minheap.display();
-//    minheap.insert(7);
-//    minheap.display();
-//    minheap.insert(1);
-//    minheap.display();
+//	url[0] = 'x'; url[1] = '\0';
+//	int cnt = 9;
+//	while(cnt-- && fscanf(fp, "%d", &body) == 1){
+//		minheap.insert(body, url);
+//	}
+//	minheap.display();
 //	minheap.sort();
 }
 

@@ -32,86 +32,86 @@ RBRoot* create_rbtree()
 /*
  * 前序遍历"红黑树"
  */
-static void preorder(RBTree tree)
-{
-    if(tree != NULL)
-    {
-        printf("%d ", tree->key);
-        preorder(tree->left);
-        preorder(tree->right);
-    }
-}
-void preorder_rbtree(RBRoot *root) 
-{
-    if (root)
-        preorder(root->node);
-}
-
-/*
- * 中序遍历"红黑树"
- */
-static void inorder(RBTree tree)
-{
-    if(tree != NULL)
-    {
-        inorder(tree->left);
-        printf("%d ", tree->key);
-        inorder(tree->right);
-    }
-}
-
-void inorder_rbtree(RBRoot *root) 
-{
-    if (root)
-        inorder(root->node);
-}
-
-/*
- * 后序遍历"红黑树"
- */
-static void postorder(RBTree tree)
-{
-    if(tree != NULL)
-    {
-        postorder(tree->left);
-        postorder(tree->right);
-        printf("%d ", tree->key);
-    }
-}
-
-void postorder_rbtree(RBRoot *root)
-{
-    if (root)
-        postorder(root->node);
-}
+//static void preorder(RBTree tree)
+//{
+//    if(tree != NULL)
+//    {
+//        printf("%d ", tree->key);
+//        preorder(tree->left);
+//        preorder(tree->right);
+//    }
+//}
+//void preorder_rbtree(RBRoot *root) 
+//{
+//    if (root)
+//        preorder(root->node);
+//}
+//
+///*
+// * 中序遍历"红黑树"
+// */
+//static void inorder(RBTree tree)
+//{
+//    if(tree != NULL)
+//    {
+//        inorder(tree->left);
+//        printf("%d ", tree->key);
+//        inorder(tree->right);
+//    }
+//}
+//
+//void inorder_rbtree(RBRoot *root) 
+//{
+//    if (root)
+//        inorder(root->node);
+//}
+//
+///*
+// * 后序遍历"红黑树"
+// */
+//static void postorder(RBTree tree)
+//{
+//    if(tree != NULL)
+//    {
+//        postorder(tree->left);
+//        postorder(tree->right);
+//        printf("%d ", tree->key);
+//    }
+//}
+//
+//void postorder_rbtree(RBRoot *root)
+//{
+//    if (root)
+//        postorder(root->node);
+//}
 
 /*
  * (递归实现)查找"红黑树x"中键值为key的节点
  */
-static Node* search(RBTree x, Type key)
+Node* search(RBTree x, Type key1, Type key2)
 {
-    if (x==NULL || x->key==key)
+    if (x==NULL || (x->key1==key1 && x->key2==key2))
         return x;
 
-    if (key < x->key)
-        return search(x->left, key);
+    if (key1 < x->key1 || (key1 == x->key1 && key2 < x->key2))
+        return search(x->left, key1, key2);
     else
-        return search(x->right, key);
+        return search(x->right, key1, key2);
 }
-int rbtree_search(RBRoot *root, Type key)
-{
-    if (root)
-        return search(root->node, key)? 0 : -1;
-}
+//int rbtree_search(RBRoot *root, Type key1, Type key2)
+//{
+//    if (root)
+//        return search(root->node, key1, key2)? 0 : -1;
+//}
 
 /*
  * (非递归实现)查找"红黑树x"中键值为key的节点
  */
-static Node* iterative_search(RBTree x, Type key)
+Node* iterative_search(RBTree x, Type key1, Type key2)
 {
-    while ((x!=NULL) && (x->key!=key))
+    while ((x!=NULL) && (x->key1!=key1 || x->key2 != key2))
     {
-        if (key < x->key)
+        if (key1 < x->key1 || (key1 == x->key1 && key2 < x->key2))
             x = x->left;
         else
             x = x->right;
@@ -119,124 +119,124 @@ static Node* iterative_search(RBTree x, Type key)
 
     return x;
 }
-int iterative_rbtree_search(RBRoot *root, Type key)
-{
-    if (root)
-        return iterative_search(root->node, key) ? 0 : -1;
-}
-
+//int iterative_rbtree_search(RBRoot *root, Type key1, Type key2)
+//{
+//    if (root)
+//        return iterative_search(root->node, key1, key2) ? 0 : -1;
+//}
+//
 /* 
  * 查找最小结点：返回tree为根结点的红黑树的最小结点。
  */
-static Node* minimum(RBTree tree)
-{
-    if (tree == NULL)
-        return NULL;
-
-    while(tree->left != NULL)
-        tree = tree->left;
-    return tree;
-}
-
-int rbtree_minimum(RBRoot *root, int *val)
-{
-    Node *node;
-
-    if (root)
-        node = minimum(root->node);
-
-    if (node == NULL)
-        return -1;
-
-    *val = node->key;
-    return 0;
-}
- 
-/* 
- * 查找最大结点：返回tree为根结点的红黑树的最大结点。
- */
-static Node* maximum(RBTree tree)
-{
-    if (tree == NULL)
-        return NULL;
-
-    while(tree->right != NULL)
-        tree = tree->right;
-    return tree;
-}
-
-int rbtree_maximum(RBRoot *root, int *val)
-{
-    Node *node;
-
-    if (root)
-        node = maximum(root->node);
-
-    if (node == NULL)
-        return -1;
-
-    *val = node->key;
-    return 0;
-}
-
-/* 
- * 找结点(x)的后继结点。即，查找"红黑树中数据值大于该结点"的"最小结点"。
- */
-static Node* rbtree_successor(RBTree x)
-{
-    // 如果x存在右孩子，则"x的后继结点"为 "以其右孩子为根的子树的最小结点"。
-    if (x->right != NULL)
-        return minimum(x->right);
-
-    // 如果x没有右孩子。则x有以下两种可能：
-    // (01) x是"一个左孩子"，则"x的后继结点"为 "它的父结点"。
-    // (02) x是"一个右孩子"，则查找"x的最低的父结点，并且该父结点要具有左孩子"，找到的这个"最低的父结点"就是"x的后继结点"。
-    Node* y = x->parent;
-    while ((y!=NULL) && (x==y->right))
-    {
-        x = y;
-        y = y->parent;
-    }
-
-    return y;
-}
- 
-/* 
- * 找结点(x)的前驱结点。即，查找"红黑树中数据值小于该结点"的"最大结点"。
- */
-static Node* rbtree_predecessor(RBTree x)
-{
-    // 如果x存在左孩子，则"x的前驱结点"为 "以其左孩子为根的子树的最大结点"。
-    if (x->left != NULL)
-        return maximum(x->left);
-
-    // 如果x没有左孩子。则x有以下两种可能：
-    // (01) x是"一个右孩子"，则"x的前驱结点"为 "它的父结点"。
-    // (01) x是"一个左孩子"，则查找"x的最低的父结点，并且该父结点要具有右孩子"，找到的这个"最低的父结点"就是"x的前驱结点"。
-    Node* y = x->parent;
-    while ((y!=NULL) && (x==y->left))
-    {
-        x = y;
-        y = y->parent;
-    }
-
-    return y;
-}
-
-/* 
- * 对红黑树的节点(x)进行左旋转
- *
- * 左旋示意图(对节点x进行左旋)：
- *      px                              px
- *     /                               /
- *    x                               y                
- *   /  \      --(左旋)-->           / \                #
- *  lx   y                          x  ry     
- *     /   \                       /  \
- *    ly   ry                     lx  ly  
- *
- *
- */
+//static Node* minimum(RBTree tree)
+//{
+//    if (tree == NULL)
+//        return NULL;
+//
+//    while(tree->left != NULL)
+//        tree = tree->left;
+//    return tree;
+//}
+//
+//int rbtree_minimum(RBRoot *root, int *val)
+//{
+//    Node *node;
+//
+//    if (root)
+//        node = minimum(root->node);
+//
+//    if (node == NULL)
+//        return -1;
+//
+//    *val = node->key;
+//    return 0;
+//}
+// 
+///* 
+// * 查找最大结点：返回tree为根结点的红黑树的最大结点。
+// */
+//static Node* maximum(RBTree tree)
+//{
+//    if (tree == NULL)
+//        return NULL;
+//
+//    while(tree->right != NULL)
+//        tree = tree->right;
+//    return tree;
+//}
+//
+//int rbtree_maximum(RBRoot *root, int *val)
+//{
+//    Node *node;
+//
+//    if (root)
+//        node = maximum(root->node);
+//
+//    if (node == NULL)
+//        return -1;
+//
+//    *val = node->key;
+//    return 0;
+//}
+//
+///* 
+// * 找结点(x)的后继结点。即，查找"红黑树中数据值大于该结点"的"最小结点"。
+// */
+//static Node* rbtree_successor(RBTree x)
+//{
+//    // 如果x存在右孩子，则"x的后继结点"为 "以其右孩子为根的子树的最小结点"。
+//    if (x->right != NULL)
+//        return minimum(x->right);
+//
+//    // 如果x没有右孩子。则x有以下两种可能：
+//    // (01) x是"一个左孩子"，则"x的后继结点"为 "它的父结点"。
+//    // (02) x是"一个右孩子"，则查找"x的最低的父结点，并且该父结点要具有左孩子"，找到的这个"最低的父结点"就是"x的后继结点"。
+//    Node* y = x->parent;
+//    while ((y!=NULL) && (x==y->right))
+//    {
+//        x = y;
+//        y = y->parent;
+//    }
+//
+//    return y;
+//}
+// 
+///* 
+// * 找结点(x)的前驱结点。即，查找"红黑树中数据值小于该结点"的"最大结点"。
+// */
+//static Node* rbtree_predecessor(RBTree x)
+//{
+//    // 如果x存在左孩子，则"x的前驱结点"为 "以其左孩子为根的子树的最大结点"。
+//    if (x->left != NULL)
+//        return maximum(x->left);
+//
+//    // 如果x没有左孩子。则x有以下两种可能：
+//    // (01) x是"一个右孩子"，则"x的前驱结点"为 "它的父结点"。
+//    // (01) x是"一个左孩子"，则查找"x的最低的父结点，并且该父结点要具有右孩子"，找到的这个"最低的父结点"就是"x的前驱结点"。
+//    Node* y = x->parent;
+//    while ((y!=NULL) && (x==y->left))
+//    {
+//        x = y;
+//        y = y->parent;
+//    }
+//
+//    return y;
+//}
+//
+///* 
+// * 对红黑树的节点(x)进行左旋转
+// *
+// * 左旋示意图(对节点x进行左旋)：
+// *      px                              px
+// *     /                               /
+// *    x                               y                
+// *   /  \      --(左旋)-->           / \                #
+// *  lx   y                          x  ry     
+// *     /   \                       /  \
+// *    ly   ry                     lx  ly  
+// *
+// *
+// */
 static void rbtree_left_rotate(RBRoot *root, Node *x)
 {
     // 设置x的右孩子为y
@@ -410,7 +410,7 @@ static void rbtree_insert_fixup(RBRoot *root, Node *node)
  *     root 红黑树的根
  *     node 插入的结点        // 对应《算法导论》中的z
  */
-static void rbtree_insert(RBRoot *root, Node *node)
+void rbtree_insert(RBRoot *root, Node *node)
 {
     Node *y = NULL;
     Node *x = root->node;
@@ -419,7 +419,7 @@ static void rbtree_insert(RBRoot *root, Node *node)
     while (x != NULL)
     {
         y = x;
-        if (node->key < x->key)
+        if (node->key1 < x->key1 || (node->key1 == x->key2 && node->key1 < x->key2))
             x = x->left;
         else
             x = x->right;
@@ -428,7 +428,7 @@ static void rbtree_insert(RBRoot *root, Node *node)
 
     if (y != NULL)
     {
-        if (node->key < y->key)
+        if (node->key1 < y->key1 || (node->key1 == y->key1 && node->key1 < y->key2))
             y->left = node;                // 情况2：若“node所包含的值” < “y所包含的值”，则将node设为“y的左孩子”
         else
             y->right = node;            // 情况3：(“node所包含的值” >= “y所包含的值”)将node设为“y的右孩子” 
@@ -454,17 +454,19 @@ static void rbtree_insert(RBRoot *root, Node *node)
  *     left 是左孩子。
  *     right 是右孩子。
  */
-static Node* create_rbtree_node(Type key, Node *parent, Node *left, Node* right)
+Node* create_rbtree_node(Type key1, Type key2, Node *parent, Node *left, Node* right, void *hNode)
 {
     Node* p;
 
     if ((p = (Node *)malloc(sizeof(Node))) == NULL)
         return NULL;
-    p->key = key;
+    p->key1 = key1;
+	p->key2 = key2;
     p->left = left;
     p->right = right;
     p->parent = parent;
     p->color = BLACK; // 默认为黑色
+	p->hNode = hNode;
 
     return p;
 }
@@ -479,23 +481,23 @@ static Node* create_rbtree_node(Type key, Node *parent, Node *left, Node* right)
  *     0，插入成功
  *     -1，插入失败
  */
-int insert_rbtree(RBRoot *root, Type key)
-{
-    Node *node;    // 新建结点
-
-    // 不允许插入相同键值的节点。
-    // (若想允许插入相同键值的节点，注释掉下面两句话即可！)
-    if (search(root->node, key) != NULL)
-        return -1;
-
-    // 如果新建结点失败，则返回。
-    if ((node=create_rbtree_node(key, NULL, NULL, NULL)) == NULL)
-        return -1;
-
-    rbtree_insert(root, node);
-
-    return 0;
-}
+//int insert_rbtree(RBRoot *root, Type key1, Type key2)
+//{
+//    Node *node;    // 新建结点
+//
+//    // 不允许插入相同键值的节点。
+//    // (若想允许插入相同键值的节点，注释掉下面两句话即可！)
+//    if (search(root->node, key1, key2) != NULL)
+//        return -1;
+//
+//    // 如果新建结点失败，则返回。
+//    if ((node=create_rbtree_node(key1, key2, NULL, NULL, NULL, NULL)) == NULL)
+//        return -1;
+//
+//    rbtree_insert(root, node);
+//
+//    return 0;
+//}
 
 /*
  * 红黑树删除修正函数
@@ -700,37 +702,37 @@ void rbtree_delete(RBRoot *root, Node *node)
  *     tree 红黑树的根结点
  *     key 键值
  */
-void delete_rbtree(RBRoot *root, Type key)
-{
-    Node *z, *node; 
-
-    if ((z = search(root->node, key)) != NULL)
-        rbtree_delete(root, z);
-}
+//void delete_rbtree(RBRoot *root, Type key)
+//{
+//    Node *z, *node; 
+//
+//    if ((z = search(root->node, key)) != NULL)
+//        rbtree_delete(root, z);
+//}
 
 /*
  * 销毁红黑树
  */
-static void rbtree_destroy(RBTree tree)
-{
-    if (tree==NULL)
-        return ;
-
-    if (tree->left != NULL)
-        rbtree_destroy(tree->left);
-    if (tree->right != NULL)
-        rbtree_destroy(tree->right);
-
-    free(tree);
-}
-
-void destroy_rbtree(RBRoot *root)
-{
-    if (root != NULL)
-        rbtree_destroy(root->node);
-
-    free(root);
-}
+//static void rbtree_destroy(RBTree tree)
+//{
+//    if (tree==NULL)
+//        return ;
+//
+//    if (tree->left != NULL)
+//        rbtree_destroy(tree->left);
+//    if (tree->right != NULL)
+//        rbtree_destroy(tree->right);
+//
+//    free(tree);
+//}
+//
+//void destroy_rbtree(RBRoot *root)
+//{
+//    if (root != NULL)
+//        rbtree_destroy(root->node);
+//
+//    free(root);
+//}
 
 /*
  * 打印"红黑树"
@@ -741,22 +743,22 @@ void destroy_rbtree(RBRoot *root)
  *               -1，表示该节点是它的父结点的左孩子;
  *                1，表示该节点是它的父结点的右孩子。
  */
-static void rbtree_print(RBTree tree, Type key, int direction)
-{
-    if(tree != NULL)
-    {
-        if(direction==0)    // tree是根节点
-            printf("%2d(B) is root\n", tree->key);
-        else                // tree是分支节点
-            printf("%2d(%s) is %2d's %6s child\n", tree->key, rb_is_red(tree)?"R":"B", key, direction==1?"right" : "left");
-
-        rbtree_print(tree->left, tree->key, -1);
-        rbtree_print(tree->right,tree->key,  1);
-    }
-}
-
-void print_rbtree(RBRoot *root)
-{
-    if (root!=NULL && root->node!=NULL)
-        rbtree_print(root->node, root->node->key, 0);
-}
+//static void rbtree_print(RBTree tree, Type key, int direction)
+//{
+//    if(tree != NULL)
+//    {
+//        if(direction==0)    // tree是根节点
+//            printf("%2d(B) is root\n", tree->key);
+//        else                // tree是分支节点
+//            printf("%2d(%s) is %2d's %6s child\n", tree->key, rb_is_red(tree)?"R":"B", key, direction==1?"right" : "left");
+//
+//        rbtree_print(tree->left, tree->key, -1);
+//        rbtree_print(tree->right,tree->key,  1);
+//    }
+//}
+//
+//void print_rbtree(RBRoot *root)
+//{
+//    if (root!=NULL && root->node!=NULL)
+//        rbtree_print(root->node, root->node->key, 0);
+//}
