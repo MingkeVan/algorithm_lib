@@ -2,25 +2,22 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-ll a[10005];
-char ip[100];
-char url[100];
-char refer[100];
-char agent[100];
-char status[100];
+char ip[15];
+char url[1024];
+char refer[1024];
+char agent[1024];
 //int status;
-char body[100];
+int code;
+int body;
 
 int main(){
 	FILE* fp=fopen("test.in", "r");
-	while(fscanf(fp, "%[0-9|.] %*[^]]%*c %*s %s %*s %*s %s \"%[^\"]%*c \"%[^\"]%*c%*c", ip, url, body, refer, agent) == 6){
+	while(fscanf(fp, "%[0-9|.] %*[^]]%*c %*s %s %*s %d %d \"%[^\"]%*c \"%[^\"]%*c%*c%*c", ip, url, &code, &body, refer, agent) == 6){
 		puts(ip);
 		puts(url);
 		puts(refer);
 		puts(agent);
-		puts(status);
-//		printf("%d\n", status);
-		puts(body);
+        printf("%d\n%d\n", code, body);
 //		printf("%d\n", len);
 	}
 //    Heap minheap = Heap();

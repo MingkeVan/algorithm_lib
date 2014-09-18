@@ -4,8 +4,9 @@
 struct Node{
     Node *child[2], *fa;  
     ll val;
+    char* msg;
     Node(ll v=0){
-        val = v; child[0] = child[1] = fa = NULL;
+        val = v; child[0] = child[1] = fa = msg = NULL;
     }
 };
 void swap(Node* fa, Node* ch){
