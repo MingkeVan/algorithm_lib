@@ -100,7 +100,7 @@ struct Heap{
         while(head < tail){
             hNode* top = queue[head]; head++;
             if(id == -1){
-                printf("%lld\n", top->val);
+                printf("%lld %s\n", top->val, top->msg);
             }
             if(top->child[0]) {
                 if(tail == id) return top->child[0];
@@ -113,14 +113,15 @@ struct Heap{
         }
         return NULL;
     }
-    hNode* insert(int x, char* msg){
+    hNode* insert(ll x, char* msg){
 		unsigned int len = strlen(msg);
         if(size >= TOP){
-            if(root->child[0]->val < x){
-                root->child[0]->val = x; // Mark
-				memcpy(root->child[0]->msg, msg, len+1);
-                down(root->child[0]);
-                return root->child[0];
+            hNode* ptr = root->child[0];
+            if(ptr->val < x){
+                ptr->val = x; // Mark
+				memcpy(ptr->msg, msg, len+1);
+                down(ptr);
+                return ptr;
             }
             return NULL;
         }
@@ -138,6 +139,7 @@ struct Heap{
     }
 	void sort(){
 		int count = 0;
+        printf("Heap size: %d\n", size);
 		while(size){
 			count++;
 			printf("[TOP %d] %lld %s\n", TOP-count+1, root->child[0]->val, root->child[0]->msg);

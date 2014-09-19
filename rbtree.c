@@ -467,6 +467,7 @@ Node* create_rbtree_node(Type key1, Type key2, Node *parent, Node *left, Node* r
     p->parent = parent;
     p->color = BLACK; // 默认为黑色
 	p->hNode = hNode;
+    p->val = 0;
 
     return p;
 }

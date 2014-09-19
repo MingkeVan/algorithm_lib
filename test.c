@@ -23,17 +23,29 @@ void init(){
 
 int main(){
 	init();
-  	FILE* fp=fopen("big.in", "r");
-	int count = 0;
-	while(fscanf(fp, "%[0-9|.] %*[^]]%*c %*s %s %*s %s %d \"%[^\"]%*c \"%[^\"]%*c%*c%*c", ip, url, code, &body, refer, agent) == 6){
-		count++;
-//	while(fscanf(fp, "%s %d", url, &body)==2){
-//		printf("%d\n", body);
+//  	FILE* fp=fopen("big.in", "r");
+  	FILE* fp=fopen("small.in", "r");
+	int count = 0, nc = 0, res, err = 0;
+	while(~fscanf(fp, "%[0-9|.] %*[^]]%*c %*s %s %*s %s %d \"%[^\"] \"%[^\n]\n", ip, url, code, &body, refer, agent)){
+        if(url[0] != 0) count++;
+        else  {
+            puts(url);
+            puts(agent);
+            err++;
+            printf("LINE: %d\n", err+count);
+            break;
+        }
+        if(count > 1000000) {
+            break;
+        }
+        if(err > 100000){
+            break;
+        }
 		ull key1 = hashval(url, 0);
 		ull key2 = hashval(url, 1);
-//		printf("%llu %llu\n", key1, key2);
 		Node* ptr = iterative_search(urlRoot->node, key1, key2);
 		if(ptr == NULL){
+            nc++;
 			ptr = create_rbtree_node(key1, key2, NULL, NULL, NULL, NULL);
 			rbtree_insert(urlRoot, ptr);
 		}
@@ -50,8 +62,10 @@ int main(){
 		else{
 			((hNode*)ptr->hNode)->val = ptr->val; urlMinHeap.down((hNode*)ptr->hNode);
 		}
+        body = 0;
+        memset(url, 0, sizeof(url));
 	}
-	printf("totel %d\n", count);
+	printf("totel %d node %d err %d\n", count, nc, err);
 	urlMinHeap.sort();
 //    Heap minheap = Heap();
 //	url[0] = 'x'; url[1] = '\0';
